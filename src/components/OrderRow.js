@@ -12,7 +12,7 @@ export default function OrderRow({ target, trackingNumberFile }) {
 
   const transformToCnp = () => {
     if (!orderFile) {
-      alert("파일을 선택해주세요.");
+      alert(`${label} 주문서 파일을 선택해주세요.`);
       return;
     }
 
@@ -59,6 +59,9 @@ export default function OrderRow({ target, trackingNumberFile }) {
           res.headers["content-disposition"],
           res.headers["content-type"]
         );
+      })
+      .catch((error) => {
+        alert("파일 처리중 에러가 발생했습니다.");
       });
   };
 
