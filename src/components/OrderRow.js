@@ -5,19 +5,19 @@ import api from "../api";
 import { downloadBlob } from "../util";
 
 export default function OrderRow({ target, trackingNumberFile }) {
-  const [value, setValue] = useState(null);
+  const [orderFile, setOrderFile] = useState(null);
   const [label, setLabel] = useState(
     target === "coupang" ? "쿠팡" : target === "naver" ? "네이버" : null
   );
 
   const transformToCnp = () => {
-    if (!value) {
+    if (!orderFile) {
       alert("파일을 선택해주세요.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("order", value);
+    formData.append("order", orderFile);
 
     api
       .post(`/excel/${target}/cnp/transform`, formData, {
@@ -34,7 +34,32 @@ export default function OrderRow({ target, trackingNumberFile }) {
   };
 
   const enterTrackingNumber = () => {
-    alert("운송장번호 입력");
+    if (!orderFile) {
+      alert(`${label} 주문서 파일을 선택해주세요.`);
+      return;
+    }
+
+    if (!trackingNumberFile) {
+      alert("운송장 번호 엑셀 파일을 선택해주세요.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("order", orderFile);
+    formData.append("trackingNumber", trackingNumberFile);
+
+    api
+      .post(`/excel/${target}/tracking-number/enter`, formData, {
+        responseType: "blob",
+      })
+      .then((res) => {
+        console.log(res);
+        downloadBlob(
+          res.data,
+          res.headers["content-disposition"],
+          res.headers["content-type"]
+        );
+      });
   };
 
   return (
@@ -49,7 +74,7 @@ export default function OrderRow({ target, trackingNumberFile }) {
     >
       <FileUpload
         target={target}
-        selectFile={setValue}
+        selectFile={setOrderFile}
         allowedExtension={["xlsx"]}
       />
       <Button
