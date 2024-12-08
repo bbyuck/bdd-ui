@@ -5,6 +5,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { IconButton, TextField } from "@mui/material";
 import { useState } from "react";
 import BackspaceIcon from "@mui/icons-material/Backspace";
+import { useRef } from "react";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -23,7 +24,7 @@ FileUpload.defaultProps = {
 };
 
 export default function FileUpload({ selectFile, target, allowedExtension }) {
-  const [value, setValue] = useState("");
+  const [selectedFileName, setSelectedFileName] = useState("");
   const [label, setLabel] = useState(
     target === "coupang"
       ? "쿠팡 주문서 선택"
@@ -39,7 +40,7 @@ export default function FileUpload({ selectFile, target, allowedExtension }) {
       return;
     }
     selectFile(event.target.files[0]);
-    setValue(event.target.files[0].name);
+    setSelectedFileName(event.target.files[0].name);
   };
 
   const allowedExtensionFileSelected = (file) => {
@@ -58,13 +59,16 @@ export default function FileUpload({ selectFile, target, allowedExtension }) {
   };
 
   const clearSelectedFile = () => {
-    setValue("");
+    hiddenFileInputRef.current.value = "";
+    setSelectedFileName("");
     selectFile(null);
   };
 
+  const hiddenFileInputRef = useRef(null);
+
   return (
     <>
-      <TextField sx={{ width: "300px" }} value={value} disabled />
+      <TextField sx={{ width: "300px" }} value={selectedFileName} disabled />
       <IconButton
         onClick={clearSelectedFile}
         sx={{ position: "relative", right: "30px", width: "15px" }}
@@ -86,6 +90,7 @@ export default function FileUpload({ selectFile, target, allowedExtension }) {
           type="file"
           onChange={handleSelect}
           multiple={false}
+          ref={hiddenFileInputRef}
         />
       </Button>
     </>
