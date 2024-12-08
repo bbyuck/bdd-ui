@@ -3,12 +3,15 @@ import { useState } from "react";
 import FileUpload from "./FileUpload";
 import api from "../api";
 import { downloadBlob } from "../util";
+import { useDispatch } from "react-redux";
+import { loadingEnd } from "../store/slice/clientInfo";
 
 export default function OrderRow({ target, trackingNumberFile }) {
   const [orderFile, setOrderFile] = useState(null);
   const [label, setLabel] = useState(
     target === "coupang" ? "쿠팡" : target === "naver" ? "네이버" : null
   );
+  const dispatch = useDispatch();
 
   const transformToCnp = () => {
     if (!orderFile) {
@@ -25,11 +28,16 @@ export default function OrderRow({ target, trackingNumberFile }) {
       })
       .then((res) => {
         console.log(res);
+        dispatch(loadingEnd());
         downloadBlob(
           res.data,
           res.headers["content-disposition"],
           res.headers["content-type"]
         );
+      })
+      .catch((error) => {
+        dispatch(loadingEnd());
+        alert("파일 처리중 에러가 발생했습니다.");
       });
   };
 
@@ -53,7 +61,7 @@ export default function OrderRow({ target, trackingNumberFile }) {
         responseType: "blob",
       })
       .then((res) => {
-        console.log(res);
+        dispatch(loadingEnd());
         downloadBlob(
           res.data,
           res.headers["content-disposition"],
@@ -61,6 +69,7 @@ export default function OrderRow({ target, trackingNumberFile }) {
         );
       })
       .catch((error) => {
+        dispatch(loadingEnd());
         alert("파일 처리중 에러가 발생했습니다.");
       });
   };
